@@ -31,6 +31,8 @@ Route::middleware('auth:member-api')->group(function() {
         Route::group(['prefix' => 'prealert'], function() {
             Route::post('/',[userController::class,'preAlert']);
             Route::post('/create',[userController::class,'createPreAlert']);
+            Route::post('/update',[userController::class,'updatePreAlert']);
+            Route::delete('/delete/{id}',[userController::class,'deletePreAlert']);
         });
     });
 });

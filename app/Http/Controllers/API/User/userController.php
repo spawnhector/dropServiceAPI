@@ -203,4 +203,40 @@ class userController extends Controller
             ],202);
         }
     }
+
+    public function updatePreAlert(Request $request){
+        $update = prealert::find($request->id);
+        $update->package_nm = $request->package_nm;
+        $update->track_nm = $request->track_nm;
+        $update->shipper = $request->shipper;
+        $update->content = $request->content;
+        $update->invoice_total = $request->invoice_total;
+        $update->courier = $request->courier;
+        $update->weight = $request->weight;
+        $update->file = $request->file;
+        $update->promo_code = $request->promo_code;
+
+        if ($update->update()) {
+            return response()->json([
+                'success'=>'Prealert updated'
+            ],200);
+        } else {
+            return response()->json([
+                'error'=>'Something went wrong'
+            ],202);
+        }
+    }
+
+    public function deletePreAlert($id){
+        $prealert = prealert::find($id);
+        if ($prealert->delete()) {
+            return response()->json([
+                'success'=>'Prealert deleted'
+            ],200);
+        } else {
+            return response()->json([
+                'error'=>'Something went wrong'
+            ],202);
+        }
+    }
 }
