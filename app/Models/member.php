@@ -31,4 +31,8 @@ class member extends Authenticatable
         return company_address::where('country','=',Auth::user()->country)->first();
     }
 
+    public function slide(){
+        return $this->hasMany(slide::class,'member_id','id');
+    }
+
 }

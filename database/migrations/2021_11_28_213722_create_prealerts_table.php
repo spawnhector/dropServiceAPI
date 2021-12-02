@@ -23,6 +23,7 @@ class CreatePrealertsTable extends Migration
             $table->string('shipper');
             $table->string('weight');
             $table->string('content');
+            $table->string('status')->default('0');
             $table->string('promo')->nullable();
             $table->string('file');
             $table->timestamps();

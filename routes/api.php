@@ -34,6 +34,11 @@ Route::middleware('auth:member-api')->group(function() {
             Route::post('/update',[userController::class,'updatePreAlert']);
             Route::delete('/delete/{id}',[userController::class,'deletePreAlert']);
         });
+
+        Route::get('/slide', [userController::class,'getSlide']);
+        Route::post('/updateslide', [userController::class,'updateSlide']);
+        Route::get('/activity', [userController::class,'activity']);
+        Route::post('/logout', [userController::class,'logout']);
     });
 });
 

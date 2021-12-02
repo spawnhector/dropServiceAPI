@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\API\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\activty;
 use App\Models\member;
 use App\Models\member_temp_address;
 use App\Models\prealert;
+use App\Models\slide;
+use App\Models\package;
 use App\Models\temp_address;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -28,14 +31,42 @@ class userController extends Controller
         $allData['password'] = Hash::make($allData['password']);
 
         $user = member::create($allData);
-        Auth::guard('member')->attempt([
+        $login = Auth::guard('member')->attempt([
             'email'=>$request->email,
             'password'=>$request->password,
         ]);
+        if ($login) {
+            slide::create([
+                'member_id'=>$user->id,
+                'name'=>'prealert',
+                'status'=>'0',
+            ]);
+            slide::create([
+                'member_id'=>$user->id,
+                'name'=>'package',
+                'status'=>'0',
+            ]);
+            slide::create([
+                'member_id'=>$user->id,
+                'name'=>'transit',
+                'status'=>'0',
+            ]);
+            slide::create([
+                'member_id'=>$user->id,
+                'name'=>'delivered',
+                'status'=>'0',
+            ]);
+            $reArr['token'] = $user->createToken('api-application')->accessToken;
+            activty::create([
+                'member_id'=>$user->id,
+                'name'=>'Registration',
+                'activity'=>'New account created'
+            ]);
+            return response()->json($reArr,200);
+        } else {
+            # code...
+        }
         
-        $reArr['token'] = $user->createToken('api-application')->accessToken;
-
-        return response()->json($reArr,200);
     }
 
     public function login(Request $request){
@@ -46,9 +77,34 @@ class userController extends Controller
         ])){
             $user = Auth::guard('member')->user();
             $reArr['token'] = $user->createToken('api-application')->accessToken;
+            activty::create([
+                'member_id'=>$user->id,
+                'name'=>'Login',
+                'activity'=>'Login Successfull'
+            ]);
             return response()->json($reArr,200);
         }else{
             return Response()->json(['error'=>'Unauthorize User'],203);
+        }
+
+    }
+
+    public function logout(Request $request) {
+
+        $token = $request->user()->token();
+        if ($token->revoke()) {
+            activty::create([
+                'member_id'=>Auth::user()->id,
+                'name'=>'Logout',
+                'activity'=>'Logout Successfull'
+            ]);
+            $response = ['success' => 'You have been successfully logged out!'];
+    
+            return response()->json($response, 200);
+        } else {
+            $response = ['error' => 'Something went wrong'];
+    
+            return response()->json($response, 202);
         }
 
     }
@@ -59,6 +115,11 @@ class userController extends Controller
             $find->name = $request->name;
             $find->profile_prog = $request->prog;
             $find->save();
+            activty::create([
+                'member_id'=>$request->id,
+                'name'=>'Progress',
+                'activity'=>'Profile name updated, Progress '.Auth::user()->profile_prog.'%'
+            ]);
             return Response()->json([
                 'message' => 'member name updated'
             ],200);
@@ -68,6 +129,11 @@ class userController extends Controller
             $find->dob = $request->dob;
             $find->profile_prog = $request->prog;
             $find->save();
+            activty::create([
+                'member_id'=>$request->id,
+                'name'=>'Progress',
+                'activity'=>'Profile date of birth updated, Progress '.Auth::user()->profile_prog.'%'
+            ]);
             return Response()->json([
                 'message'=>'yes'
             ],200);
@@ -77,6 +143,11 @@ class userController extends Controller
             $find->organization = $request->org;
             $find->profile_prog = $request->prog;
             $find->save();
+            activty::create([
+                'member_id'=>$request->id,
+                'name'=>'Progress',
+                'activity'=>'Profile organization updated'
+            ]);
             return Response()->json([
                 'message'=>'yes'
             ],200);
@@ -86,6 +157,11 @@ class userController extends Controller
             $find->email = $request->email;
             $find->profile_prog = $request->prog;
             $find->save();
+            activty::create([
+                'member_id'=>$request->id,
+                'name'=>'Progress',
+                'activity'=>'Profile email updated, Progress '
+            ]);
             return Response()->json([
                 'message'=>'yes'
             ],200);
@@ -95,6 +171,11 @@ class userController extends Controller
             $find->phone = $request->number;
             $find->profile_prog = $request->prog;
             $find->save();
+            activty::create([
+                'member_id'=>$request->id,
+                'name'=>'Progress',
+                'activity'=>'Profile number updated, Progress '.Auth::user()->profile_prog.'%'
+            ]);
             return Response()->json([
                 'message'=>'yes'
             ],200);
@@ -108,6 +189,11 @@ class userController extends Controller
             $find->postal = $request->postal;
             $find->profile_prog = $request->prog;
             $find->save();
+            activty::create([
+                'member_id'=>$request->id,
+                'name'=>'Progress',
+                'activity'=>'Profile address updated, Progress '.Auth::user()->profile_prog.'%'
+            ]);
             return Response()->json([
                 'message'=>'yes'
             ],200);
@@ -117,6 +203,11 @@ class userController extends Controller
             $find->trn = $request->trn;
             $find->profile_prog = $request->prog;
             $find->save();
+            activty::create([
+                'member_id'=>$request->id,
+                'name'=>'Progress',
+                'activity'=>'Profile tax registration number updated, Progress '.Auth::user()->profile_prog.'%'
+            ]);
             return Response()->json([
                 'message'=>'yes'
             ],200);
@@ -127,6 +218,11 @@ class userController extends Controller
             $find->t_c = $request->t_c;
             $find->profile_prog = $request->prog;
             $find->save();
+            activty::create([
+                'member_id'=>$request->id,
+                'name'=>'Progress',
+                'activity'=>'Profile terms and conditions accepted, Progress '.Auth::user()->profile_prog.'%'
+            ]);
             return Response()->json([
                 'message'=>'yes'
             ],200);
@@ -137,6 +233,11 @@ class userController extends Controller
             $find->p_p = $request->p_p;
             $find->profile_prog = $request->prog;
             $find->save();
+            activty::create([
+                'member_id'=>$request->id,
+                'name'=>'Progress',
+                'activity'=>'Profile privacy and policy accepted, Progress '.Auth::user()->profile_prog.'%'
+            ]);
             return Response()->json([
                 'message'=>'yes'
             ],200);
@@ -194,6 +295,28 @@ class userController extends Controller
     public function createPreAlert(Request $request){
         
         if (prealert::create($request->all())) {
+            $count = count(prealert::where('umi','=',$request->umi)->get());
+            if ($count >= 3) {
+                $slide = slide::find(1);
+                if ($slide->status != 3  && $slide->status == 0) {
+                    $slide->status = 1;
+                    $slide->save();
+                    activty::create([
+                        'member_id'=>Auth::user()->id,
+                        'name'=>'Slide',
+                        'activity'=>'Pre-alert slide enabled'
+                    ]);
+                    return response()->json([
+                        'success'=>'Pre-alert created, slide enabled'
+                    ],200);
+                }
+            }
+            
+            activty::create([
+                'member_id'=>Auth::user()->id,
+                'name'=>'Prealert',
+                'activity'=>'Pre-alert create with nick name: '.$request->package_nm.''
+            ]);
             return response()->json([
                 'success'=>'Prealert created'
             ],200);
@@ -229,9 +352,54 @@ class userController extends Controller
 
     public function deletePreAlert($id){
         $prealert = prealert::find($id);
+        $name = $prealert->package_nm;
         if ($prealert->delete()) {
+            activty::create([
+                'member_id'=>Auth::user()->id,
+                'name'=>'Prealert',
+                'activity'=>'Pre-alert "'.$name.'" deleted'
+            ]);
             return response()->json([
                 'success'=>'Prealert deleted'
+            ],200);
+        } else {
+            return response()->json([
+                'error'=>'Something went wrong'
+            ],202);
+        }
+    }
+
+    public function getSlide(){
+        return response()->json(['success'=>slide::where('member_id','=',Auth::user()->id)->get()],200);
+    }
+
+    public function updateSlide(Request $request){
+
+        if (count(package::where('umi','=',$request->umi)->get()) == 0) {
+            return response()->json([
+                'error'=>'No package available, slide can not be enable.'
+            ],202);
+        }
+
+        $slide = slide::find($request->id);
+        $slide->status = $request->status;
+        
+        if ($slide->update()) {
+            return response()->json([
+                'success'=>'slide updated'
+            ],200);
+        } else {
+            return response()->json([
+                'error'=>'Something went wrong'
+            ],202);
+        }
+    }
+
+    public function activity(){
+        $activity = activty::where('member_id','=',Auth::user()->id)->latest()->get();
+        if (count($activity) != 0) {
+            return response()->json([
+                'success'=>$activity
             ],200);
         } else {
             return response()->json([
