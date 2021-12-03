@@ -303,6 +303,11 @@ class userController extends Controller
                     $slide->save();
                     activty::create([
                         'member_id'=>Auth::user()->id,
+                        'name'=>'Prealert',
+                        'activity'=>'Pre-alert create with nick name: '.$request->package_nm.''
+                    ]);
+                    activty::create([
+                        'member_id'=>Auth::user()->id,
                         'name'=>'Slide',
                         'activity'=>'Pre-alert slide enabled'
                     ]);
@@ -373,12 +378,14 @@ class userController extends Controller
         return response()->json(['success'=>slide::where('member_id','=',Auth::user()->id)->get()],200);
     }
 
-    public function updateSlide(Request $request){
+    public function enableSlide(Request $request){
 
-        if (count(package::where('umi','=',$request->umi)->get()) == 0) {
-            return response()->json([
-                'error'=>'No package available, slide can not be enable.'
-            ],202);
+        if (!$request->has('bypass')) {
+            if (count(package::where('umi','=',$request->umi)->get()) == 0) {
+                return response()->json([
+                    'error'=>'No package available, slide can not be enable.'
+                ],202);
+            }
         }
 
         $slide = slide::find($request->id);
@@ -387,6 +394,21 @@ class userController extends Controller
         if ($slide->update()) {
             return response()->json([
                 'success'=>'slide updated'
+            ],200);
+        } else {
+            return response()->json([
+                'error'=>'Something went wrong'
+            ],202);
+        }
+    }
+    public function disableSlide(Request $request){
+
+        $slide = slide::find($request->id);
+        $slide->status = $request->status;
+        
+        if ($slide->update()) {
+            return response()->json([
+                'success'=>'slide disabled'
             ],200);
         } else {
             return response()->json([

@@ -36,12 +36,21 @@ Route::middleware('auth:member-api')->group(function() {
         });
 
         Route::get('/slide', [userController::class,'getSlide']);
-        Route::post('/updateslide', [userController::class,'updateSlide']);
+        Route::post('/enableslide', [userController::class,'enableSlide']);
+        Route::post('/disableslide', [userController::class,'disableSlide']);
         Route::get('/activity', [userController::class,'activity']);
         Route::post('/logout', [userController::class,'logout']);
     });
 });
 
+Route::middleware('auth:admin-api')->group(function() {
+    Route::group(['prefix' => 'admin'], function() {
+        Route::get('/', function() {
+            return response()->json(request()->user());
+        });
+    });
+});
 
 Route::post('register',[userController::class,'register']);
 Route::post('login',[userController::class,'login']);
+Route::post('adminlogin',[adminController::class,'login']);

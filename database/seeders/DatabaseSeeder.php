@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             companyAddressSeeder::class,
             tempAddressSeeder::class,
-            // slideSeeder::class
+            userSeeder::class
         ]);
     }
 }
